@@ -1,0 +1,36 @@
+dict = {0: "Ноль", "1": "Один", "2": "Два", "3": "Три", "4": "Четыре",
+        "5": "Пять", "6": "Шесть", "7": "Семь", "8": "Восемь", "9": "Девять"}
+separators = ['\"', "\'"]
+buffer_len = 1
+work_buffer = ""
+#work_buffer_len = buffer_len
+with open("a.txt") as file:
+    buffer = file.read(buffer_len)
+    if not buffer: print("Файл пустой")
+    while buffer:
+        while buffer not in separators and buffer != "":
+            work_buffer += buffer
+            buffer = file.read(buffer_len)
+        IsNumber = False
+        if len(work_buffer) > 0:
+            IsNumber = True
+            for i in range(len(work_buffer)):
+                if not ("0" < work_buffer[i] < "9" or work_buffer[i] == "."):
+                    IsNumber = False
+            if "." not in work_buffer:
+                IsNumber = False
+        # len(work_buffer) > 2 так минимальное по размеру вещественное число имеет вид 0.0
+        if IsNumber and len(work_buffer) > 2:
+            if (work_buffer[-1] != "."):
+                flagPoint = 0
+                for i in range(len(work_buffer)):
+                    if work_buffer[i] == ".":
+                        print(".", end = "")
+                        flagPoint = 1
+                    elif flagPoint == 0:
+                        znach = dict[work_buffer[i]]
+                        print(znach, end = "")
+                    else: print(work_buffer[i], end = "")
+                print(end = " ")
+        work_buffer = ""
+        buffer = file.read(buffer_len)   
