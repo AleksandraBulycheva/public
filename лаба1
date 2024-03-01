@@ -1,3 +1,4 @@
+    
 dict = {
     '0': 'ноль',
     '1': 'один',
@@ -16,6 +17,8 @@ dict = {
     'E': 'четырнадцать',
     'F': 'пятнадцать'
 }
+sch = 0
+ch = 0
 separators = ['\"', "\'"]
 blocklen = 1
 blockw = ""
@@ -30,6 +33,7 @@ with open('input.txt', 'r') as file:
         IsNumber = False
         if len(blockw) > 0:
             IsNumber = True
+            ch += 1
             for i in range(len(blockw)):
                 if not ("0" < blockw[i] < "9" or blockw[i] == "."):
                     IsNumber = False
@@ -46,6 +50,9 @@ with open('input.txt', 'r') as file:
                         znach = dict[blockw[i]]
                         print(znach, end = " ")
                     else: print(blockw[i], end = "")
+                    sch += 1
                 print()
         blockw = ""
-        block = file.read(blocklen)      
+        block = file.read(blocklen)
+    if sch == 0:
+        print("не удовлетворяет условию задачи")
