@@ -1,58 +1,37 @@
-    
-dict = {
-    '0': 'ноль',
-    '1': 'один',
-    '2': 'два',
-    '3': 'три',
-    '4': 'четыре',
-    '5': 'пять',
-    '6': 'шесть',
-    '7': 'семь',
-    '8': 'восемь',
-    '9': 'девять',
-    'A': 'десять',
-    'B': 'одиннадцать',
-    'C': 'двенадцать',
-    'D': 'тринадцать',
-    'E': 'четырнадцать',
-    'F': 'пятнадцать'
-}
-sch = 0
-ch = 0
-separators = ['\"', "\'"]
-blocklen = 1
-blockw = ""
-with open('input.txt', 'r') as file:
-    block = file.read(blocklen)
-    if not block:
-        print("\nФайл input.txt пустой.\nДобавьте не пустой файл в директорию или переименуйте существующий *.txt файл")
-    while block:
-        while block not in separators and block != "":
-            blockw += block
-            block = file.read(blocklen)
-        IsNumber = False
-        if len(blockw) > 0:
-            IsNumber = True
-            ch += 1
-            for i in range(len(blockw)):
-                if not ("0" < blockw[i] < "9" or blockw[i] == "."):
-                    IsNumber = False
-            if "." not in blockw:
-                IsNumber = False
-        if IsNumber and len(blockw) > 2:
-            if (blockw[-1] != "."):
-                flagPoint = 0
-                for i in range(len(blockw)):
-                    if blockw[i] == ".":
-                        print(".", end = "")
-                        flagPoint = 1
-                    elif flagPoint == 0:
-                        znach = dict[blockw[i]]
-                        print(znach, end = " ")
-                    else: print(blockw[i], end = "")
-                    sch += 1
-                print()
-        blockw = ""
-        block = file.read(blocklen)
-    if sch == 0:
-        print("не удовлетворяет условию задачи")
+# Написать программу, которая читая символы из бесконечной последовательности (эмулируется конечным файлом, читающимся поблочно),
+# распознает, преобразует и выводит на экран лексемы по определенному правилу.
+# Лексемы разделены пробелами. Преобразование делать по возможности через словарь.
+# Для упрощения под выводом числа прописью подразумевается последовательный вывод всех цифр числа.
+# Регулярные выражения использовать нельзя
+# Вариант 4.
+# Вещественные числа, заключенные в кавычки (все виды). Кавычки не выводятся. Целая часть числа выводится словами.
+def digit_to_word(digit):
+    return {
+        '0': 'ноль', '1': 'один', '2': 'два', '3': 'три',
+        '4': 'четыре', '5': 'пять', '6': 'шесть', '7': 'семь',
+        '8': 'восемь', '9': 'девять'
+    }[digit]
+
+def integer_to_words(integer_str):
+    return ' '.join(digit_to_word(digit) for digit in integer_str)
+
+def find_and_convert_numbers(file_path):
+    with open(file_path, 'r') as file:
+        quote_open = False
+        buffer = ''
+        for block in iter(lambda: file.read(1024), ''):
+            for char in block:
+                if char in ('"', "'"):
+                    if quote_open:
+                        if buffer.replace('.', '', 1).isdigit() and '.' in buffer:
+                            integer_part, decimal_part = buffer.split('.')
+                            print(integer_to_words(integer_part), decimal_part)
+                        buffer = ''
+                    quote_open = not quote_open
+                elif quote_open:
+                    buffer += char
+                elif char == ' ' and buffer:
+                    buffer = ''
+
+file_path = 'input.txt'
+find_and_convert_numbers(file_path)
