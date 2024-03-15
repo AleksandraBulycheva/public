@@ -1,0 +1,67 @@
+#Формируется матрица F следующим образом: если в Е количество нулевых элементов в нечетных столбцах в области 4 больше, чем количество отрицательных  элементов в четных строках в области 1, 
+#то поменять в В симметрично области 4 и 3 местами, иначе В и Е поменять местами несимметрично. 
+#При этом матрица А не меняется. После чего вычисляется выражение: ((F+A)– (K * F) )*AT . Выводятся по мере формирования А, F и все матричные операции последовательно.
+
+
+import random
+
+# ввод K и N
+K = int(input('Введите число K: '))
+N = int(input('Введите число N: '))
+
+# генерация матриц B, C, D, E
+B = [[random.randint(-10, 10) for _ in range(N // 2)] for _ in range(N // 2)]
+C = [[random.randint(-10, 10) for _ in range(N // 2)] for _ in range(N // 2)]
+D = [[random.randint(-10, 10) for _ in range(N // 2)] for _ in range(N // 2)]
+E = [[random.randint(-10, 10) for _ in range(N // 2)] for _ in range(N // 2)]
+
+# формирование матрицы А
+A = [[0 for _ in range(N)] for _ in range(N)]
+for i in range(N // 2):
+    for j in range(N // 2):
+        A[i][j] = B[i][j]
+        A[i][j + N // 2] = C[i][j]
+        A[i + N // 2][j] = D[i][j]
+        A[i + N // 2][j + N // 2] = E[i][j]
+    print('Матрица А после заполнения подматрицы E:')
+    for row in A:
+        print(row)
+
+# формирование матрицы F
+count_zeros = 0
+count_negatives = 0
+for i in range(N // 2):
+    for j in range(N // 2, N):
+        if i == N // 2 - 1 or j == N - 1:
+            if E[i][j] == 0:
+                count_zeros += 1
+        if i % 2 == 0 and D[i // 2][j - N // 2] < 0:
+            count_negatives += 1
+if count_zeros > count_negatives:
+    for i in range(N // 2):
+        for j in range(N // 4):
+            B[i][j], B[i][N // 2 - j - 1] = B[i][N // 2 - j - 1], B[i][j]
+            D[i][j], D[i][N // 2 - j - 1] = D[i][N // 2 - j - 1], D[i][j]
+else:
+    B, E = E, B
+    print('Матрица F после несимметричной замены B и E:')
+    for row in B + C + D + E:
+        print(row)
+
+# вычисление выражения ((F+A)– (K * F) )*A**T
+FA = [[0 for _ in range(N)] for _ in range(N)]
+for i in range(N):
+    for j in range(N):
+        FA[i][j] = F[i][j] + A[i][j]
+KF = [[0 for _ in range(N)] for _ in range(N)]
+for i in range(N):
+    for j in range(N):
+        KF[i][j] = K * F[i][j]
+result = [[0 for _ in range(N)] for _ in range(N)]
+for i in range(N):
+    for j in range(N):
+        for k in range(N):
+            result[i][j] += (FA[i][k] - KF[i][k]) * A[j][k]
+print('Результат:')
+for row in result:
+    print(row)
