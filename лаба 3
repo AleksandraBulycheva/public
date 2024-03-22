@@ -19,64 +19,183 @@ D	E
 Выводятся по мере формирования А, F и все матричные операции последовательно.
 '''
 import random
+def rand_filling_mat(size):
+    result = []
+    for i in range(size):
+        random_numbers = [round(random.uniform(-10, 10), 2) for i in range(size)]
+        result.append(random_numbers)
+    return result
+# Генерация матрицы размером(size,size) случайными значениями от -10 до 10 вкл.
+def input_mat(size):
+    matrix = []
+    for i in range(size):
+        row = []
+        for j in range(size):
+            # Запрашиваем у пользователя числа для каждой ячейки
+            value = float(input(f"Введите значение для [{i+1}][{j+1}]: "))
+            row.append(value)
+        matrix.append(row)
+    return matrix
+def triangle_left(mat):
+    elements = []
+    for i in range(len(mat)//2):
+        for j in range(i):
+            if i % 2 == 1:
+                elements.append(mat[i][j])
+    for i in range(len(mat)//2,len(mat)):
+        for j in range(len(mat)-(i+1)):
+            if i % 2 == 1:
+                elements.append(mat[i][j])
+    return elements
+# поиск элементов левой области
+def triangle_down(mat):
+    elements = []
+    for i in range(len(mat)//2,len(mat)):
+        for j in range(len(mat)-i,i):
+            if j % 2 == 0:
+                elements.append(mat[i][j])
+    return elements
+# поиск элементов периметра нижней области
+def replace_elements(A):
+    A_copy = A.copy()
+    # Обмениваем элементы
+    for i in range(len(A)):
+        for j in range(i + 1, len(A)):
+            temp = A[i][j]
+            A[i][j] = A[j][i]
+            A[j][i] = temp
+    print("\n")
+    print(A)
+    for i in range(len(A)):
+        for j in range(len(A) - i):
+            A[i][j] = A_copy[i][j]
+    return A
+# поменять в матрице «С» симметрично области 1 и 3 местами
+def transpon(mat):
+    result = []
+    rows = len(mat)
+    cols = len(mat[0])
+    for j in range(cols):
+        transposed_row = []
+        for i in range(rows):
+            transposed_row.append(mat[i][j])
+        result.append(transposed_row)
+    return result
+# Транспонирование Матриц
+def print_mat(mat, description):
+    print(description+"\n")
+    for i in mat:
+        print(i)
+    print("\n")
 
-# ввод K и N
-K = int(input('Введите число K: '))
-N = int(input('Введите число N: '))
+def multiply_matrices(matrix1, matrix2):
+    result = []
+    rows = len(matrix1)
+    cols = len(matrix2[0])
+    for i in range(rows):
+        row = []
+        for j in range(cols):
+            value = 0
+            for k in range(len(matrix2)):
+                value += matrix1[i][k] * matrix2[k][j]
+            row.append(round(value, 2))
+        result.append(row)
+    return result
+def add_matrices(matrix1, matrix2):
+    result = []
+    for i in range(len(matrix1)):
+        row = []
+        for j in range(len(matrix1[0])):
+            row.append(matrix1[i][j] + matrix2[i][j])
+        result.append(row)
+    return result
+def subtract_matrices(matrix1, matrix2):
+    result = []
+    for i in range(len(matrix1)):
+        row = []
+        for j in range(len(matrix1[0])):
+            row.append(round(matrix1[i][j] - matrix2[i][j], 2))
+        result.append(row)
+    return result
+def multiply_k_matric(k, matrix1):
+    result = []
+    for i in range(len(matrix1)):
+        row = []
+        for j in range(len(matrix1[0])):
+            row.append(round(matrix1[i][j] * k, 2))
+        result.append(row)
+    return result
 
-# генерация матриц B, C, D, E
-B = [[random.randint(-10, 10) for _ in range(N // 2)] for _ in range(N // 2)]
-C = [[random.randint(-10, 10) for _ in range(N // 2)] for _ in range(N // 2)]
-D = [[random.randint(-10, 10) for _ in range(N // 2)] for _ in range(N // 2)]
-E = [[random.randint(-10, 10) for _ in range(N // 2)] for _ in range(N // 2)]
+def separation_mat(mat):
+    mat1 = []
+    mat2 = []
+    mat3 = []
+    mat4 = []
+    for i in range(len(mat)//2):
+        row = []
+        for j in range(len(mat)//2):
+            row.append(mat[i][j])
+        mat1.append(row)
+    for i in range(len(mat)//2):
+        row = []
+        for j in range(len(mat)//2+len(mat)%2,len(mat)):
+            row.append(mat[i][j])
+        mat2.append(row)
+    for i in range(len(mat)//2+len(mat)%2,len(mat)):
+        row = []
+        for j in range(len(mat)//2):
+            row.append(mat[i][j])
+        mat3.append(row)
+    for i in range(len(mat)//2+len(mat)%2,len(mat)):
+        row = []
+        for j in range(len(mat)//2+len(mat)%2,len(mat)):
+            row.append(mat[i][j])
+        mat4.append(row)
+    result = [mat1,mat2,mat3,mat4]
+    return result
 
-# формирование матрицы А
-A = [[0 for _ in range(N)] for _ in range(N)]
-for i in range(N // 2):
-    for j in range(N // 2):
-        A[i][j] = B[i][j]
-        A[i][j + N // 2] = C[i][j]
-        A[i + N // 2][j] = D[i][j]
-        A[i + N // 2][j + N // 2] = E[i][j]
-    print('Матрица А после заполнения подматрицы E:')
-    for row in A:
-        print(row)
+def conect_mat(mat, mat1, mat2, mat3, mat4):
+    result = mat
+    for i,i1 in zip(range(len(mat)//2), range(len(mat1))):
+        for j,j1 in zip(range(len(mat)//2), range(len(mat1))):
+            result[i][j] = mat1[i1][j1]
+    for i,i1 in zip(range(len(mat)//2), range(len(mat2))):
+        for j,j1 in zip(range(len(mat)//2+len(mat)%2,len(mat)), range(len(mat2))):
+            result[i][j] = mat2[i1][j1]
+    for i,i1 in zip(range(len(mat)//2+len(mat)%2,len(mat)), range(len(mat3))):
+        for j,j1 in zip(range(len(mat)//2), range(len(mat3))):
+            result[i][j] = mat3[i1][j1]
+    for i,i1 in zip(range(len(mat)//2+len(mat)%2,len(mat)), range(len(mat4))):
+        for j,j1 in zip(range(len(mat)//2+len(mat)%2,len(mat)), range(len(mat4))):
+            result[i][j] = mat4[i1][j1]
+    return result
 
-# формирование матрицы F
-count_zeros = 0
-count_negatives = 0
-for i in range(N // 2):
-    for j in range(N // 2, N):
-        if i == N // 2 - 1 or j == N - 1:
-            if E[i][j] == 0:
-                count_zeros += 1
-        if i % 2 == 0 and D[i // 2][j - N // 2] < 0:
-            count_negatives += 1
-if count_zeros > count_negatives:
-    for i in range(N // 2):
-        for j in range(N // 4):
-            B[i][j], B[i][N // 2 - j - 1] = B[i][N // 2 - j - 1], B[i][j]
-            D[i][j], D[i][N // 2 - j - 1] = D[i][N // 2 - j - 1], D[i][j]
+k = int(input("введите число к = "))
+n = int(input("введите число n больше 5 = "))
+while n < 6:
+    n = int(input("введите число n больше 5 = "))
+
+A = rand_filling_mat(n)
+F = A.copy()
+temp_a = separation_mat(A)
+B = temp_a[0]
+C = temp_a[1]
+D = temp_a[2]
+E = temp_a[3]
+
+print_mat(A, "Матрица A")
+print_mat(B, "Матрица B")
+print_mat(C, "Матрица C")
+print_mat(D, "Матрица D")
+print_mat(E, "Матрица E")
+
+if triangle_down(E).count(0) > sum(i > 0 for i in triangle_left(E)):
+    B = replace_elements(B)
+    discription = "Измененная матрица B в матрице А(F)"
 else:
-    B, E = E, B
-    print('Матрица F после несимметричной замены B и E:')
-    for row in B + C + D + E:
-        print(row)
-
-# вычисление выражения ((F+A)– (K * F) )*A**T
-FA = [[0 for _ in range(N)] for _ in range(N)]
-for i in range(N):
-    for j in range(N):
-        FA[i][j] = F[i][j] + A[i][j]
-KF = [[0 for _ in range(N)] for _ in range(N)]
-for i in range(N):
-    for j in range(N):
-        KF[i][j] = K * F[i][j]
-result = [[0 for _ in range(N)] for _ in range(N)]
-for i in range(N):
-    for j in range(N):
-        for k in range(N):
-            result[i][j] += (FA[i][k] - KF[i][k]) * A[j][k]
-print('Результат:')
-for row in result:
-    print(row)
+    (B, E) = (E, B)
+    discription = "Поменяные матрицы B и E местами"
+conect_mat(F,B,C,D,E)
+print_mat(F, "Матрица F")
+result = multiply_matrices(subtract_matrices(add_matrices(F, A), multiply_k_matric(k, F)), transpon(A))
+print_mat(result, "((F+A)– (K * F) )*A**T")
