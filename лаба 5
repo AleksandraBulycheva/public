@@ -1,7 +1,7 @@
 '''
-Задана рекуррентная функция. Область определения функции – натуральные числа. Написать программу сравнительного вычисления данной функции рекурсивно и итерационно. 
+Задана рекуррентная функция. Область определения функции – натуральные числа. Написать программу сравнительного вычисления данной функции рекурсивно и итерационно.
 Определить границы применимости рекурсивного и итерационного подхода. Результаты сравнительного исследования времени вычисления представить в табличной и графической форме.
-Вариант 4.	F(x<2) = 3; F(n) = (-1)n*(F(n-1)/n! + F(n-5) /(2n)!)
+Вариант 4.  F(x<2) = 3; F(n) = (-1)n*(F(n-1)/n! + F(n-5) /(2n)!)
 '''
 
 import csv
@@ -47,7 +47,10 @@ def f_rec(n: int) -> Union[float, int]:
 
     if n < 2:
         return 3
-    return (-1) ** n * ((f_rec(n - 1) / fact_rec(n))+ (f_rec(n - 5) / fact_rec(2 * n)))
+    if n%2 == 0:
+        return (1) * ((f_rec(n - 1) / fact_rec(n)) + (f_rec(n - 5) / fact_rec(2 * n)))
+    else:
+        return (-1) * ((f_rec(n - 1) / fact_rec(n)) + (f_rec(n - 5) / fact_rec(2 * n)))
 
 
 def f_iter(n) -> Union[float, int]:
@@ -65,7 +68,11 @@ def f_iter(n) -> Union[float, int]:
     for i in range(2, n + 1):
         last = lst.pop()
         prev = lst[0]
-        lst.insert(0, (-1) ** i * ((prev / fact_iter(i)) + last / fact_iter(2 * i)))
+        if i % 2 == 0:
+            lst.insert(0, (1) * ((prev / fact_iter(i)) + last / fact_iter(2 * i)))
+        else:
+            lst.insert(0, (-1) * ((prev / fact_iter(i)) + last / fact_iter(2 * i)))
+
 
     return lst[0]
 
@@ -150,6 +157,7 @@ def get_input(text: str) -> int:
     """
     Возвращает ввод пользователя.
 
+
     :param text: текст запроса
     """
     while True:
@@ -165,7 +173,7 @@ def get_valid_input(text: str) -> int:
     Возвращает ввод пользователя, проверяя его на валидность.
 
     :param text: текст запроса
-    
+
     """
     while True:
         try:
@@ -190,3 +198,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
