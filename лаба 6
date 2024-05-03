@@ -1,0 +1,100 @@
+"""
+Задание состоит из двух частей.
+1 часть – написать программу в соответствии со своим вариантом задания.
+Написать 2 варианта формирования (алгоритмический и с помощью функций Питона), сравнив по времени их выполнение.
+2 часть – усложнить написанную программу,
+введя по своему усмотрению в условие минимум одно ограничение на характеристики объектов (которое будет сокращать количество переборов)
+и целевую функцию для нахождения оптимального  решения.
+
+Вариант 4. IT-предприятие набирает сотрудников: 2 тимлида, 2 проджек-менеджера, 3 синьера, 3 мидла, 4 юниора.
+Сформировать все возможные варианты заполнения вакантных мест, если имеются 16 претендентов.
+"""
+import itertools
+import time
+
+# Вакансии
+vacancies_requirements = {
+    "тимлид": 2,
+    "проджект-менеджер": 2,
+    "синьер": 3,
+    "мидл": 3,
+    "юниор": 4
+}
+
+# Количество претендентов
+count_of_candidates = 16
+
+# Все комбинации по размеру вакансий
+total_needed = sum(vacancies_requirements.values())
+
+# Максимальная сумма зарплат
+salary_cap = 84000
+
+# Зарплаты претендентов
+salaries = [4300, 5600, 2700, 3400, 9100, 3700, 2500, 6500, 8400, 5200, 7300, 6800, 8100, 9200, 8900, 6100]
+
+
+# Оценка стоимости работников
+def group_cost(group):
+    return sum(salaries[i] for t in group for i in t)
+
+
+# Генерация комбинаций без itertools.combinations
+def combinations(array, k, start=0, current_combination=[]):
+    if len(current_combination) == k:
+        yield tuple(current_combination)
+    else:
+        for i in range(start, len(array)):
+            yield from combinations(array, k, i + 1, current_combination + [array[i]])
+
+
+# Функция для разделения списка на группы указанного размера
+def partition(arr, sizes):
+    results = []
+    start = 0
+    for size in sizes:
+        end = start + size
+        results.append(arr[start:end])
+        start = end
+    return results
+
+
+# Алгоритмический подход
+def algorithmic_groups_generation(count_of_candidates, total_needed, salary_cap):
+    groups = []
+    for candidates_comb in combinations(range(count_of_candidates), total_needed):
+        cost = sum(candidates_comb)
+        if cost <= salary_cap:
+            groups.append(partition(candidates_comb, vacancies_requirements.values()))
+    return sorted(groups, key=group_cost)
+
+
+# Подход с itertools
+def itertools_groups_generation(count_of_candidates, total_needed, salary_cap):
+    candidates_comb = list(itertools.combinations(range(count_of_candidates), total_needed))
+    groups = [partition(comb, vacancies_requirements.values()) for comb in candidates_comb if sum(comb) <= salary_cap]
+    return sorted(groups, key=group_cost)
+
+
+
+# Замер времени работы алгоритмического подхода
+start_time = time.time()
+algorithmic_groups = algorithmic_groups_generation(count_of_candidates, total_needed, salary_cap)
+end_time = time.time()
+print(f"Алгоритмический подход: {end_time - start_time} секунд")
+
+# Замер времени работы подхода с itertools
+start_time = time.time()
+itertools_groups = itertools_groups_generation(count_of_candidates, total_needed, salary_cap)
+end_time = time.time()
+print(f"Подход с itertools: {end_time - start_time} секунд")
+
+# Вывод 5 примеров
+print("Алгоритмический подход:")
+for group in algorithmic_groups[:5]:
+    print(group, group_cost(group))
+
+# Вывод 5 примеров
+print("\nПодход с itertools:")
+for group in itertools_groups[:5]:
+    print(group, group_cost(group))
