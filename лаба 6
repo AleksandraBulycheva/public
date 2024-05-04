@@ -59,42 +59,38 @@ def partition(arr, sizes):
     return results
 
 
-# Алгоритмический подход
-def algorithmic_groups_generation(count_of_candidates, total_needed, salary_cap):
+# Алгоритмический подход с учетом ограничения по зарплате
+def algorithmic_groups_generation_with_salary_cap(count_of_candidates, total_needed, salary_cap):
     groups = []
     for candidates_comb in combinations(range(count_of_candidates), total_needed):
-        cost = sum(candidates_comb)
-        if cost <= salary_cap:
+        if group_cost(partition(candidates_comb, vacancies_requirements.values())) <= salary_cap:
             groups.append(partition(candidates_comb, vacancies_requirements.values()))
-    return sorted(groups, key=group_cost)
+    return groups
 
-
-# Подход с itertools
-def itertools_groups_generation(count_of_candidates, total_needed, salary_cap):
+# Подход с itertools с учетом ограничения по зарплате
+def itertools_groups_generation_with_salary_cap(count_of_candidates, total_needed, salary_cap):
     candidates_comb = list(itertools.combinations(range(count_of_candidates), total_needed))
-    groups = [partition(comb, vacancies_requirements.values()) for comb in candidates_comb if sum(comb) <= salary_cap]
-    return sorted(groups, key=group_cost)
+    return [partition(comb, vacancies_requirements.values()) for comb in candidates_comb if group_cost(partition(comb, vacancies_requirements.values())) <= salary_cap]
 
-
-
-# Замер времени работы алгоритмического подхода
+# Замер времени работы алгоритмического подхода с учетом ограничения по зарплате
 start_time = time.time()
-algorithmic_groups = algorithmic_groups_generation(count_of_candidates, total_needed, salary_cap)
+algorithmic_groups_with_salary_cap = algorithmic_groups_generation_with_salary_cap(count_of_candidates, total_needed, salary_cap)
 end_time = time.time()
-print(f"Алгоритмический подход: {end_time - start_time} секунд")
+print(f"Алгоритмический подход с учетом ограничения по зарплате: {end_time - start_time} секунд, {len(algorithmic_groups_with_salary_cap)} комбинаций")
 
-# Замер времени работы подхода с itertools
+# Замер времени работы подхода с itertools с учетом ограничения по зарплате
 start_time = time.time()
-itertools_groups = itertools_groups_generation(count_of_candidates, total_needed, salary_cap)
+itertools_groups_with_salary_cap = itertools_groups_generation_with_salary_cap(count_of_candidates, total_needed, salary_cap)
 end_time = time.time()
-print(f"Подход с itertools: {end_time - start_time} секунд")
+print(f"Подход с itertools с учетом ограничения по зарплате: {end_time - start_time} секунд, {len(itertools_groups_with_salary_cap)} комбинаций")
 
-# Вывод 5 примеров
-print("Алгоритмический подход:")
-for group in algorithmic_groups[:5]:
+# Вывод всех комбинаций алгоритмического подхода с учетом ограничения по зарплате
+print("Алгоритмический подход с учетом ограничения по зарплате:")
+for group in algorithmic_groups_with_salary_cap:
     print(group, group_cost(group))
 
-# Вывод 5 примеров
-print("\nПодход с itertools:")
-for group in itertools_groups[:5]:
+# Вывод всех комбинаций подхода с itertools с учетом ограничения по зарплате
+print("\nПодход с itertools с учетом ограничения по зарплате:")
+for group in itertools_groups_with_salary_cap:
     print(group, group_cost(group))
+
