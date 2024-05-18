@@ -96,3 +96,26 @@ def update_output():
 # Создаем основное окно
 root = tk.Tk()
 root.title("Генератор команд")
+
+
+
+# Создаем поля ввода для каждой позиции
+for position in positions:
+    label = tk.Label(root, text=f"Количество {position}:")
+    label.pack()
+    entry = tk.Entry(root)
+    entry.pack()
+    # Присваиваем переменным поля ввода ссылки на соответствующие виджеты
+    globals()[f"{position}_field"] = entry
+
+# Кнопка для генерации команд
+generate_button = tk.Button(root, text="Генерировать команды", command=update_output)
+generate_button.pack()
+
+# Текстовое поле с прокруткой для вывода
+output_text = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=50, height=15)
+output_text.pack(padx=10, pady=10)
+
+# Запускаем главный цикл Tkinter
+root.mainloop()
+
