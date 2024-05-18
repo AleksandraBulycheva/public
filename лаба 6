@@ -9,88 +9,65 @@
 Вариант 4. IT-предприятие набирает сотрудников: 2 тимлида, 2 проджек-менеджера, 3 синьера, 3 мидла, 4 юниора.
 Сформировать все возможные варианты заполнения вакантных мест, если имеются 16 претендентов.
 """
+
 import itertools
-import time
+import timeit
+import math
+# Определяем количество кандидатов и позиций
+candidates = list(range(1, 17))
+positions = {'timlid': 2, 'proj_manager': 2, 'senior': 3, 'mid': 3, 'junior': 4}
 
-# Вакансии
-vacancies_requirements = {
-    "тимлид": 2,
-    "проджект-менеджер": 2,
-    "синьер": 3,
-    "мидл": 3,
-    "юниор": 4
-}
-
-# Количество претендентов
-count_of_candidates = 16
-
-# Все комбинации по размеру вакансий
-total_needed = sum(vacancies_requirements.values())
-
-# Максимальная сумма зарплат
-salary_cap = 84000
-
-# Зарплаты претендентов
-salaries = [4300, 5600, 2700, 3400, 9100, 3700, 2500, 6500, 8400, 5200, 7300, 6800, 8100, 9200, 8900, 6100]
-
-
-# Оценка стоимости работников
-def group_cost(group):
-    return sum(salaries[i] for t in group for i in t)
-
-
-# Генерация комбинаций без itertools.combinations
-def combinations(array, k, start=0, current_combination=[]):
-    if len(current_combination) == k:
-        yield tuple(current_combination)
+# Алгоритмический метод
+def generate_teams_alg(candidates, positions, current_team=[]):
+    if sum(positions.values()) == 0:
+        yield current_team
     else:
-        for i in range(start, len(array)):
-            yield from combinations(array, k, i + 1, current_combination + [array[i]])
+        for position, count in positions.items():
+            if count > 0:
+                new_positions = positions.copy()
+                new_positions[position] -= 1
+                for candidate in candidates:
+                    if candidate not in current_team:
+                        yield from generate_teams_alg(candidates, new_positions, current_team + [candidate])
+# Функция для подсчета общего количества возможных команд
+def calculate_total_vacancies(positions):
+    total_candidates = math.factorial(len(candidates))
+    for count in positions.values():
+        total_candidates //= math.factorial(count)
+    return total_candidates
+# Метод с использованием функций Python
+def generate_teams_func(candidates, positions):
+    position_list = sum([[pos] * count for pos, count in positions.items()], [])
+    for team in itertools.permutations(candidates, len(position_list)):
+        yield [candidate for _, candidate in zip(position_list, team)]
 
+# Усложненная часть - добавляем ограничение
+def generate_teams_with_limitation(candidates, positions):
+    for team in generate_teams_alg(candidates, positions):
+        if team[0] < team[1]:  # Предположим, что первый тимлид более опытен
+            yield team
+total_teams = calculate_total_vacancies(positions)
+print(f"Общее количество возможных команд: {total_teams}")
+# Функция для измерения времени и вывода результатов
+def measure_and_print_optimal_teams(candidates, positions):
+    print(f"Вакансии: {positions}")
 
-# Функция для разделения списка на группы указанного размера
-def partition(arr, sizes):
-    results = []
-    start = 0
-    for size in sizes:
-        end = start + size
-        results.append(arr[start:end])
-        start = end
-    return results
+    # Измеряем время алгоритмического метода
+    start_time_alg = timeit.default_timer()
+    alg_teams = list(itertools.islice(generate_teams_with_limitation(candidates, positions), 100))
+    alg_time = timeit.default_timer() - start_time_alg
+    print(f"Алгоритмический метод 100 вариантов занял: {alg_time:.4f} секунд")
+    for i, team in enumerate(alg_teams, 1):
+        print(f"Команда {i} (алгоритм): {team}")
 
+    # Измеряем время функционального метода
+    start_time_func = timeit.default_timer()
+    func_teams = list(itertools.islice(generate_teams_func(candidates, positions), 100))
+    func_time = timeit.default_timer() - start_time_func
+    print(f"Функциональный метод 100 вариантов занял: {func_time:.4f} секунд")
+    for i, team in enumerate(func_teams, 1):
+        print(f"Команда {i} (функция): {team}")
 
-# Алгоритмический подход с учетом ограничения по зарплате
-def algorithmic_groups_generation_with_salary_cap(count_of_candidates, total_needed, salary_cap):
-    groups = []
-    for candidates_comb in combinations(range(count_of_candidates), total_needed):
-        if group_cost(partition(candidates_comb, vacancies_requirements.values())) <= salary_cap:
-            groups.append(partition(candidates_comb, vacancies_requirements.values()))
-    return groups
-
-# Подход с itertools с учетом ограничения по зарплате
-def itertools_groups_generation_with_salary_cap(count_of_candidates, total_needed, salary_cap):
-    candidates_comb = list(itertools.combinations(range(count_of_candidates), total_needed))
-    return [partition(comb, vacancies_requirements.values()) for comb in candidates_comb if group_cost(partition(comb, vacancies_requirements.values())) <= salary_cap]
-
-# Замер времени работы алгоритмического подхода с учетом ограничения по зарплате
-start_time = time.time()
-algorithmic_groups_with_salary_cap = algorithmic_groups_generation_with_salary_cap(count_of_candidates, total_needed, salary_cap)
-end_time = time.time()
-print(f"Алгоритмический подход с учетом ограничения по зарплате: {end_time - start_time} секунд, {len(algorithmic_groups_with_salary_cap)} комбинаций")
-
-# Замер времени работы подхода с itertools с учетом ограничения по зарплате
-start_time = time.time()
-itertools_groups_with_salary_cap = itertools_groups_generation_with_salary_cap(count_of_candidates, total_needed, salary_cap)
-end_time = time.time()
-print(f"Подход с itertools с учетом ограничения по зарплате: {end_time - start_time} секунд, {len(itertools_groups_with_salary_cap)} комбинаций")
-
-# Вывод всех комбинаций алгоритмического подхода с учетом ограничения по зарплате
-print("Алгоритмический подход с учетом ограничения по зарплате:")
-for group in algorithmic_groups_with_salary_cap:
-    print(group, group_cost(group))
-
-# Вывод всех комбинаций подхода с itertools с учетом ограничения по зарплате
-print("\nПодход с itertools с учетом ограничения по зарплате:")
-for group in itertools_groups_with_salary_cap:
-    print(group, group_cost(group))
+# Выводим результаты
+measure_and_print_optimal_teams(candidates, positions)
 
