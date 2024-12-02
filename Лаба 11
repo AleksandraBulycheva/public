@@ -1,0 +1,80 @@
+"""
+Создание игры Пятнашки
+"""
+import tkinter as tk
+from tkinter import messagebox
+import random
+
+class PuzzleGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Пятнашки")
+        self.size = 4
+        self.tiles = [(i, j) for i in range(self.size) for j in range(self.size)]
+        self.buttons = {}
+        self.empty_tile = (self.size - 1, self.size - 1)
+        self.create_board()
+        self.shuffle()
+
+    def create_board(self):
+        self.frame = tk.Frame(self.root)
+        self.frame.pack()
+        for tile in self.tiles:
+            i, j = tile
+            button = tk.Button(self.frame, text=str(i * self.size + j + 1), width=4, height=2,
+                               command=lambda t=tile: self.move(t))
+            button.grid(row=i, column=j)
+            self.buttons[tile] = button
+        self.buttons[self.empty_tile].config(text="", state=tk.DISABLED)
+
+    def shuffle(self):
+        possible_moves = self.get_possible_moves()
+        for _ in range(1000):
+            move = random.choice(possible_moves)
+            self.move(move)
+            possible_moves = self.get_possible_moves()
+
+    def get_possible_moves(self):
+        i, j = self.empty_tile
+        moves = []
+        if i > 0:
+            moves.append((i - 1, j))
+        if i < self.size - 1:
+            moves.append((i + 1, j))
+        if j > 0:
+            moves.append((i, j - 1))
+        if j < self.size - 1:
+            moves.append((i, j + 1))
+        return moves
+
+    def move(self, tile):
+        if tile in self.get_possible_moves():
+            self.swap_tiles(tile, self.empty_tile)
+            self.empty_tile = tile
+            if self.check_win():
+                messagebox.showinfo("Победа!", "Вы собрали пятнашки!")
+
+    def swap_tiles(self, tile1, tile2):
+        text1 = self.buttons[tile1].cget("text")
+        text2 = self.buttons[tile2].cget("text")
+        self.buttons[tile1].config(text=text2)
+        self.buttons[tile2].config(text=text1)
+        if text2 == "":
+            self.buttons[tile1].config(state=tk.DISABLED)
+            self.buttons[tile2].config(state=tk.NORMAL)
+        else:
+            self.buttons[tile1].config(state=tk.NORMAL)
+            self.buttons[tile2].config(state=tk.DISABLED)
+
+    def check_win(self):
+        for tile in self.tiles:
+            i, j = tile
+            if tile != self.empty_tile:
+                if self.buttons[tile].cget("text") != str(i * self.size + j + 1):
+                    return False
+        return True
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = PuzzleGame(root)
+    root.mainloop()
